@@ -1,0 +1,26 @@
+name: Automated Daily Quant Report
+on:
+  schedule:
+    - cron: '0 12 * * *' # Executes completely automatically every day at 5:00 PM Pakistan Time
+  workflow_dispatch:
+
+jobs:
+  run-engine:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install Toolkits
+      run: pip install feedparser yfinance pandas numpy matplotlib openpyxl
+    - name: Execute Quant Engine
+      run: python quant_script.py
+    - name: Commit Generated Reports to iPad App Repository
+      run: |
+        git config --global user.name 'Quant-Automation-Engine'
+        git config --global user.email 'automation@engine.internal'
+        git add verified_performance_plot.png verified_irfan_v_province_logs.xlsx
+        git commit -m "Automated Daily Financial Report Update" || exit 0
+        git push
